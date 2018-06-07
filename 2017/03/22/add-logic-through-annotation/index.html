@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="java,android,annotation," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="唧唧歪歪的河马正在打游戏" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/doudou.jpg?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="做什么？？近期在为公司的项目做埋点。 因为之前做过几次， 深知这个东西的麻烦， 要频繁的往代码中添加重复逻辑。什么onStart, onStop全部都重写一遍， 做为一个码农，咱怎么也算是脑力劳动者， 什么时候变成干体力活了。研究了两天，绕了一个大弯， 终于找到了方法。记录一下这个过程。
+注解处理器第一感觉是不是这个东西要用到编译时注解， 因为咱的目的是在编译时添加逻辑嘛。哼哧，哼哧。。。。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何通过注解添加逻辑">
+<meta property="og:url" content="http://mapeiyu.com/2017/03/22/add-logic-through-annotation/index.html">
+<meta property="og:site_name" content="唧唧歪歪的河马正在打游戏">
+<meta property="og:description" content="做什么？？近期在为公司的项目做埋点。 因为之前做过几次， 深知这个东西的麻烦， 要频繁的往代码中添加重复逻辑。什么onStart, onStop全部都重写一遍， 做为一个码农，咱怎么也算是脑力劳动者， 什么时候变成干体力活了。研究了两天，绕了一个大弯， 终于找到了方法。记录一下这个过程。
+注解处理器第一感觉是不是这个东西要用到编译时注解， 因为咱的目的是在编译时添加逻辑嘛。哼哧，哼哧。。。。">
+<meta property="og:image" content="http://mapeiyu.com/2017/03/22/add-logic-through-annotation/java-task.png">
+<meta property="og:image" content="http://mapeiyu.com/2017/03/22/add-logic-through-annotation/android-task.png">
+<meta property="og:image" content="http://mapeiyu.com/2017/03/22/add-logic-through-annotation/qc.jpg">
+<meta property="og:updated_time" content="2018-06-07T03:36:02.848Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何通过注解添加逻辑">
+<meta name="twitter:description" content="做什么？？近期在为公司的项目做埋点。 因为之前做过几次， 深知这个东西的麻烦， 要频繁的往代码中添加重复逻辑。什么onStart, onStop全部都重写一遍， 做为一个码农，咱怎么也算是脑力劳动者， 什么时候变成干体力活了。研究了两天，绕了一个大弯， 终于找到了方法。记录一下这个过程。
+注解处理器第一感觉是不是这个东西要用到编译时注解， 因为咱的目的是在编译时添加逻辑嘛。哼哧，哼哧。。。。">
+<meta name="twitter:image" content="http://mapeiyu.com/2017/03/22/add-logic-through-annotation/java-task.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"always","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://mapeiyu.com/2017/03/22/add-logic-through-annotation/"/>
+
+
+
+
+
+  <title>如何通过注解添加逻辑 | 唧唧歪歪的河马正在打游戏</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b4a6f029b729806570bf2abd1a553829";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">唧唧歪歪的河马正在打游戏</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://mapeiyu.com/2017/03/22/add-logic-through-annotation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="马培羽">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="唧唧歪歪的河马正在打游戏">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">如何通过注解添加逻辑</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-22T11:00:03+08:00">
+                2017-03-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/方案/" itemprop="url" rel="index">
+                    <span itemprop="name">方案</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="做什么？？"><a href="#做什么？？" class="headerlink" title="做什么？？"></a>做什么？？</h4><p>近期在为公司的项目做埋点。 因为之前做过几次， 深知这个东西的麻烦， 要频繁的往代码中添加重复逻辑。什么onStart, onStop全部都重写一遍， 做为一个码农，咱怎么也算是脑力劳动者， 什么时候变成干体力活了。研究了两天，绕了一个大弯， 终于找到了方法。记录一下这个过程。</p>
+<h4 id="注解处理器"><a href="#注解处理器" class="headerlink" title="注解处理器"></a>注解处理器</h4><p>第一感觉是不是这个东西要用到编译时注解， 因为咱的目的是在编译时添加逻辑嘛。哼哧，哼哧。。。。<br>    <a href="http://www.open-open.com/lib/view/open1470735314518.html" target="_blank" rel="external">http://www.open-open.com/lib/view/open1470735314518.html</a></p>
+<h4 id="构造代码"><a href="#构造代码" class="headerlink" title="构造代码"></a>构造代码</h4><p>添加逻辑就是要自己构造代码喽。一般都是用方块的javapoet. 继续哼哧，哼哧。。。。<br>    <a href="http://www.jianshu.com/p/95f12f72f69a" target="_blank" rel="external">http://www.jianshu.com/p/95f12f72f69a</a><br>    <a href="https://github.com/square/javapoet" target="_blank" rel="external">https://github.com/square/javapoet</a> </p>
+<h4 id="修改文件"><a href="#修改文件" class="headerlink" title="修改文件?"></a>修改文件?</h4><p>哦。不对javapoet只能用来生成新的java文件。 不能用来修改class文件， 我们的目的是要修改生成的class文件啊。</p>
+<h4 id="nuwa怎么做到的"><a href="#nuwa怎么做到的" class="headerlink" title="nuwa怎么做到的"></a>nuwa怎么做到的</h4><p>记得之前热更新插件中可以修改class文件的， nuwa就是通过修改class文件来达到使类具有热修复能力的。 继续哼哧，哼哧。。。。<br>    <a href="https://github.com/jasonross/Nuwa" target="_blank" rel="external">https://github.com/jasonross/Nuwa</a></p>
+<h4 id="asm字节码"><a href="#asm字节码" class="headerlink" title="asm字节码"></a>asm字节码</h4><p>原来用的asm字节码工具啊。 继续哼哧， 哼哧。。。。<br>    <a href="https://www.ibm.com/developerworks/cn/java/j-lo-asm30/" target="_blank" rel="external">https://www.ibm.com/developerworks/cn/java/j-lo-asm30/</a><br>    <a href="http://asm.ow2.org/" target="_blank" rel="external">http://asm.ow2.org/</a></p>
+<h4 id="此路不通"><a href="#此路不通" class="headerlink" title="此路不通"></a>此路不通</h4><p>发现问题了啊。注解处理器无法处理修改类。同时注解处理器的处理时机是在编译之前， 即这里还没有生成class文件。 完蛋， 此路不通啊。。。。</p>
+<h4 id="gradle的task"><a href="#gradle的task" class="headerlink" title="gradle的task"></a>gradle的task</h4><p>即然注解处理器的处理时机不对，不如我们自己来控制处理时机喽。在gradle的编译task上下文章。在java的compileJava task后面， 或者在 android的compileXXXSources task后面执行 asm的字节码处理。 看下面两个图:</p>
+<center><img src="/2017/03/22/add-logic-through-annotation/java-task.png" alt="java">  <img src="/2017/03/22/add-logic-through-annotation/android-task.png" alt="android"></center>
+
+<h4 id="效率问题"><a href="#效率问题" class="headerlink" title="效率问题"></a>效率问题</h4><p>但是这个效率太低了啊。 不像注解处理器一样， asm无法专门找到和处理某个annotation. 难倒要让asm扫描所有的类文件， 找到指定的annotation?? </p>
+<h4 id="注解处理器与gradle相结合"><a href="#注解处理器与gradle相结合" class="headerlink" title="注解处理器与gradle相结合"></a>注解处理器与gradle相结合</h4><p>只能想方法喽。 把注解处理器和gradle编译结合起来。先通过注解处理器把包含注解的类过滤出来， 然后在gradle的编译task后使用asm处理过滤出来的类。 </p>
+<h4 id="找找别的办法"><a href="#找找别的办法" class="headerlink" title="找找别的办法"></a>找找别的办法</h4><p>貌似逻辑上可以走通哦，但总是感觉有那么一点点别扭。找找有没有别的办法。国内毛都查不到， 还是老外见多识广。<br>    <a href="http://stackoverflow.com/questions/4851429/modify-a-method-using-annotations" target="_blank" rel="external">http://stackoverflow.com/questions/4851429/modify-a-method-using-annotations</a></p>
+<h4 id="大牛回复"><a href="#大牛回复" class="headerlink" title="大牛回复"></a>大牛回复</h4><p>他跟我要实现的效果差不多。初始想法好像也是跟我差不多， 想用annotation processor来处理。 但是被第一个回复的大牛能否决了啊。 大牛还摘了一段wiki的原话， 意思是不能修改原annotation标注的类云云。但是我找了一下， 可能是版本升级吧。 大牛最关键的<code>but annotation processors cannot modify the annotated code itself.</code> 一句， 已被wike改成了<code>and also modify the annotated code itself</code>。 好像还是可以改， 所以回到第6步， 看来还是能用 annotation processor. 但在编译前的注解处理器，估计只能改java原文件吧。 class还没有编译出来啊。这不是我想要的。 </p>
+<h4 id="hugo怎么做的"><a href="#hugo怎么做的" class="headerlink" title="hugo怎么做的"></a>hugo怎么做的</h4><p>再想想办法. 记得之前用过大神jake walton的log神器hugo. 可以通过一注解来打印函数的变量， 执行时间等等。 显然这只能是通过注解把逻辑注入到了函数中实现的。<br>    <a href="https://github.com/JakeWharton/hugo" target="_blank" rel="external">https://github.com/JakeWharton/hugo</a></p>
+<h4 id="AspectJ"><a href="#AspectJ" class="headerlink" title="AspectJ"></a>AspectJ</h4><p>对于实现原理， 只能拿来了。 果然他用了另一种切面语言 AspectJ注入的逻辑。最初上面的老外那个问题， 大牛也提出了使用<code>AspectJ Development Tools</code>的解决方案。同时还不依不饶的让楼主使用。 我最初没在意， 以为就是一个eclipse的源码处理插件。通过ide的编译器做到的识别annotation插件代码， 类似搜索替换. 但通过hugo的使用， 看来是通用的。<br>    <a href="http://blog.csdn.net/xxxzhi/article/details/53048476" target="_blank" rel="external">http://blog.csdn.net/xxxzhi/article/details/53048476</a><br>    <a href="http://blog.csdn.net/hp910315/article/details/52701809" target="_blank" rel="external">http://blog.csdn.net/hp910315/article/details/52701809</a></p>
+<h4 id="方案确定"><a href="#方案确定" class="headerlink" title="方案确定"></a>方案确定</h4><p>在此， 确定了方案为使用 aspectJ来实现通过注解添加逻辑。一切参照hugo的代码实现即可。 我的简易实现代码.<br>    <a href="https://github.com/masonTool/AspectJDemo" target="_blank" rel="external">https://github.com/masonTool/AspectJDemo</a></p>
+<h4 id="AspectJ粗浅的理解"><a href="#AspectJ粗浅的理解" class="headerlink" title="AspectJ粗浅的理解"></a>AspectJ粗浅的理解</h4><p>对于AspectJ， 这里记录一个粗浅的理解。</p>
+<ol>
+<li>AspectJ可以理解为java的拓展。因为他是兼容java的。 </li>
+<li>AspectJ编译时使用自己的编译器ajc</li>
+<li>是一种面向切面的语言。 切面与模块是相对应的。如果把面向对象形容为纵向， 则切面可以理解为横向。特别适合做log, 权限管理，埋点， 等等。将逻辑切入对象，同时又不破坏对象的逻辑独立性和耦合性。</li>
+<li>一个最关键的概念就是Join Points. 翻译为”切入点”. 在Java中他定义了很多切入点，比如函数调用前， 函数执行前，函数执行后， 变量get时， 变量set时。。。总之发挥你的想象，基本上你想切入的点他都定义了。</li>
+<li>怎么做到切入某个点呢？很自然， 首先筛选出想要切入的点(pointcut)， 然后处理筛选出来的点的逻辑(advice). 就是这样了。然后使用ajc去编译就可以了。</li>
+<li>注意：如果你想在jar包中或者aar中使用aspectJ,不只需要使用ajc去编译生成包， 同时引用者也要使用ajc去编译才行。</li>
+</ol>
+<p>如果不想啃官方文档  <a href="https://eclipse.org/aspectj/docs.php" target="_blank" rel="external">https://eclipse.org/aspectj/docs.php</a><br>这篇文章可以带你入门  <a href="http://blog.csdn.net/innost/article/details/49387395" target="_blank" rel="external">http://blog.csdn.net/innost/article/details/49387395</a></p>
+<h4 id="一点改进"><a href="#一点改进" class="headerlink" title="一点改进"></a>一点改进</h4><p>要想使用AspectJ不只需要引用<code>org.aspectj:aspectjrt:1.8.6</code>就完事了, 这个包只是让你编写代码用的，还需要自己处理编译逻辑。个人认为这个地方可以做得更简易一些， 就像groovy插件的自动编译一样。 </p>
+<p>所以我这里写了一个简易的gradle插件，copy到你的工程apply一下，就可以任性的编写aspectj代码，同时你也不用理会编译的事情了。<br><a href="https://github.com/masonTool/AspectJDemo/blob/master/aspect_compile.gradle" target="_blank" rel="external">https://github.com/masonTool/AspectJDemo/blob/master/aspect_compile.gradle</a></p>
+<p>你可以直接使用，或者只做很小的改动来使用.当然这还只一个demo版本，但如果你是像我一样的新手，同时又不需要过多的高级配置的话，这已经足够好了.有时间我会把他以gradleplugin的形式发布到jcenter，让新手可以更方便的使用。</p>
+<center><img src="/2017/03/22/add-logic-through-annotation/qc.jpg" alt="tt"></center>
+
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/java/" rel="tag"># java</a>
+          
+            <a href="/tags/android/" rel="tag"># android</a>
+          
+            <a href="/tags/annotation/" rel="tag"># annotation</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/02/start-android-test/" rel="next" title="Android自动化测试入门篇">
+                <i class="fa fa-chevron-left"></i> Android自动化测试入门篇
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/06/06/progard-in-aar/" rel="prev" title="proguard点滴">
+                proguard点滴 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMDE5Mi82NzQ3"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="马培羽" />
+          <p class="site-author-name" itemprop="name">马培羽</p>
+           
+              <p class="site-description motion-element" itemprop="description">三分钟热度</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/masonTool" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#做什么？？"><span class="nav-number">1.</span> <span class="nav-text">做什么？？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#注解处理器"><span class="nav-number">2.</span> <span class="nav-text">注解处理器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#构造代码"><span class="nav-number">3.</span> <span class="nav-text">构造代码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#修改文件"><span class="nav-number">4.</span> <span class="nav-text">修改文件?</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#nuwa怎么做到的"><span class="nav-number">5.</span> <span class="nav-text">nuwa怎么做到的</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#asm字节码"><span class="nav-number">6.</span> <span class="nav-text">asm字节码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#此路不通"><span class="nav-number">7.</span> <span class="nav-text">此路不通</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gradle的task"><span class="nav-number">8.</span> <span class="nav-text">gradle的task</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#效率问题"><span class="nav-number">9.</span> <span class="nav-text">效率问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#注解处理器与gradle相结合"><span class="nav-number">10.</span> <span class="nav-text">注解处理器与gradle相结合</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#找找别的办法"><span class="nav-number">11.</span> <span class="nav-text">找找别的办法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#大牛回复"><span class="nav-number">12.</span> <span class="nav-text">大牛回复</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#hugo怎么做的"><span class="nav-number">13.</span> <span class="nav-text">hugo怎么做的</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#AspectJ"><span class="nav-number">14.</span> <span class="nav-text">AspectJ</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#方案确定"><span class="nav-number">15.</span> <span class="nav-text">方案确定</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#AspectJ粗浅的理解"><span class="nav-number">16.</span> <span class="nav-text">AspectJ粗浅的理解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#一点改进"><span class="nav-number">17.</span> <span class="nav-text">一点改进</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 &mdash; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马培羽</span>
+
+  
+</div>
+
+
+  <div class="powered-by">
+    由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+  </div>
+
+  <span class="post-meta-divider">|</span>
+
+  <div class="theme-info">
+    主题 &mdash;
+    <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+      NexT.Mist
+    </a>
+  </div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
